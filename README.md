@@ -1,7 +1,7 @@
 # Defect detections
 
 
-## 1. Using OpenCV:\
+## 1. Using OpenCV:
   - _Detections_1.py_
     - Based on Sobel edge detections 
   - _Detections_2.py_
