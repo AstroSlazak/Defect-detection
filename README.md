@@ -12,4 +12,4 @@
 
 ## 2. Neural Network:
    - I'm working on in. Actually I have made a keras U-net network, in near future it will be here. 
-   - I have created a training data, [images](https://drive.google.com/drive/folders/15p_ywfItvNIEJmDEGxJbWXglUtm9okIA?usp=sharing) and [masks](https://drive.google.com/drive/folders/1zTfdqN3_q85ikhWmTzMaPqxrXZOS9nq3?usp=sharing) for them.
+   - I have created a training data  [images](https://drive.google.com/drive/folders/15p_ywfItvNIEJmDEGxJbWXglUtm9okIA?usp=sharing) and [masks](https://drive.google.com/drive/folders/1zTfdqN3_q85ikhWmTzMaPqxrXZOS9nq3?usp=sharing) for them from this [data](https://data.mendeley.com/datasets/5y9wdsg2zt/1).
