@@ -20,6 +20,7 @@ import GPUtil as GPU
 from tqdm import tqdm
 import gc
 
+# Get Images and preprocesing (save numpy to disc due to large size)
 def get_X_data(img_paths, output_shape=(None, None)):
     
     num_shape = cv2.resize(cv2.imread(img_paths[0]), output_shape)
@@ -36,7 +37,7 @@ def get_X_data(img_paths, output_shape=(None, None)):
           
         return X_data.reshape(len(img_paths) ,-1)
 
-
+# Get Masks and preprocesing (save numpy to disc due to large size)
 def get_Y_data(img_paths, output_shape=(None, None)):
     
     num_shape = cv2.resize(cv2.imread(img_paths[0], cv2.IMREAD_GRAYSCALE), output_shape)
@@ -57,12 +58,11 @@ def get_Y_data(img_paths, output_shape=(None, None)):
 
         return Y_data.reshape(len(img_paths), -1)
      
-    
 def split_train_test(X_train, Y_train, test_size=test_size, seed=seed):
     X_train, X_test, Y_train, Y_test = train_test_split(X_train, Y_train, test_size = test_size, random_state=seed)
     return X_train, X_test, Y_train, Y_test
   
-
+# Images and masks augmentation
 def train_test_augmented(X_data, Y_data, batch_size=batch_size):
     
     image_gen_args = dict(samplewise_center=False, 
@@ -88,6 +88,7 @@ def train_test_augmented(X_data, Y_data, batch_size=batch_size):
         
         
 # https://www.kaggle.com/kmader/data-preprocessing-and-unet-segmentation-gpu
+# Define Intersection over Union metrics
 def mean_iou(y_true, y_pred):
     
     prec = []
@@ -112,7 +113,8 @@ def dice_coef(y_true, y_pred):
 
 def dice_coef_loss(y_true, y_pred):
     return 0.5 * keras.losses.binary_crossentropy(y_true, y_pred) - dice_coef(y_true, y_pred)
-  
+ 
+# Get GPU and RAM usage
 def printm():
     process = psutil.Process(os.getpid())
     print("\nGen RAM Free: " + humanize.naturalsize( psutil.virtual_memory().available ), " | Proc size: " + humanize.naturalsize( process.memory_info().rss))
@@ -135,6 +137,7 @@ for i in ids_cracks:
     outputs_filename.append(os.path.join('Data_mask', i[:-4] + '_mask' + i[-4:]))
     inputs_filename.append(os.path.join('Data', i))
 
+# Create a model
 inputs = Input((256, 256, 3))
 x = BatchNormalization()(inputs)
 x = Dropout(0.5)(x)
@@ -183,6 +186,7 @@ outputs = Conv2D(1, (1, 1), activation='sigmoid')(c9)
 model = Model(inputs=[inputs], outputs=[outputs])
 model.compile(optimizer = 'adam', loss = dice_coef_loss, metrics = [dice_coef, 'binary_accuracy', 'mse'])
 
+# Define saving, reduce the learning rate and early stoping
 checkpoint = ModelCheckpoint('unet.h5', monitor='val_loss', verbose=1,save_best_only=True, mode='min')
 reduceLROnPlat = ReduceLROnPlateau(monitor='loss', factor=0.8, patience=10, verbose=1, mode='auto', epsilon=0.0001, cooldown=5, min_lr=0.0001)
 early = EarlyStopping(monitor="val_loss", mode="min", patience=10)
@@ -192,6 +196,7 @@ X_train_dat = get_X_data(inputs_filename, output_shape=(256, 256))
 Y_train_dat = get_Y_data(outputs_filename, output_shape=(256, 256))
 data_slice = len(X_train_dat) // num_chunks 
 
+# Train the model
 for i in tqdm(range(num_epoch)):
     print(f'\nEpoch: {i+1}/{num_epoch}')
     for n in tqdm(range(num_chunks)):
